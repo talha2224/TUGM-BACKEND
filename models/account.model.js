@@ -8,7 +8,8 @@ const AccountSchema = mongoose.Schema({
     password:{type:String},
     registrationType:{type:String,default:"normal"},
     sellerMode:{type:Boolean,default:false},
-    profile:{type:String,default:null}
+    profile:{type:String,default:null},
+    followers:{type:Number,default:0}
 })
 
 
