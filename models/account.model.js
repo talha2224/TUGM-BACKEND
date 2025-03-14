@@ -9,7 +9,8 @@ const AccountSchema = mongoose.Schema({
     registrationType:{type:String,default:"normal"},
     sellerMode:{type:Boolean,default:false},
     profile:{type:String,default:null},
-    followers:{type:Number,default:0}
+    followers:{type:Number,default:0},
+    followedBy:{type:Array,default:[]},
 })
 
 

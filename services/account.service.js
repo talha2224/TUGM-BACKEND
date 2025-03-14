@@ -1,7 +1,6 @@
 const { AccountModel } = require("../models/account.model");
 const bcrypt = require("bcryptjs")
-const { generatePin, uploadFile } = require("../utils/function");
-const { sendDynamicMail } = require("../utils/email");
+const {uploadFile } = require("../utils/function");
 
 
 
@@ -134,5 +133,22 @@ const uploadPicture = async (req,res)=>{
     }
 }
 
+const followCreator = async (req, res) => {
+    try {
+        let { cid, uid } = req.params;
+        let findCreator = await AccountModel.findById(cid);
+        if (!findCreator) {
+            return res.status(404).json({ msg: "Creator not found" });
+        }
+        
+        let updateProfile = await AccountModel.findByIdAndUpdate(cid,{ $addToSet: { followedBy: uid },$inc: { followers: 1 }},{ new: true });
+        return res.status(200).json({ data: updateProfile, msg: "Follow Successful" });
+    } 
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({ msg: "Internal Server Error" });
+    }
+};
 
-module.exports = {uploadPicture,createAccount, loginAccount, getAccountById,getAllAccount,switchProfileMode,createGoogleAccount,loginGoogleAccount}
+
+module.exports = {followCreator,uploadPicture,createAccount, loginAccount, getAccountById,getAllAccount,switchProfileMode,createGoogleAccount,loginGoogleAccount}
