@@ -24,6 +24,15 @@ const getActive = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+const getCreatorActiveStream = async (req, res) => {
+    try {
+        const activeStreams = await LiveStream.findOne({ streamId:req?.params?.id}).populate("creatorId").populate("productId")
+        res.status(200).json({ data: activeStreams, msg: "" });
+    }
+    catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
 const endStream = async (req, res) => {
     try {
         const stream = await LiveStream.findByIdAndUpdate(req.params.id, { status: "ended" }, { new: true });
@@ -46,4 +55,4 @@ const getSingle = async (req, res) => {
     }
 };
 
-module.exports = { createStream, getActive, getSingle, endStream };
+module.exports = { createStream, getActive, getSingle, endStream,getCreatorActiveStream};
