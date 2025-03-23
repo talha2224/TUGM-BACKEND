@@ -150,5 +150,18 @@ const followCreator = async (req, res) => {
     }
 };
 
+const buyCoins = async (req,res) =>{
+    try {
+        let { id } = req.params;
+        let {dollars} = req.body
+        let findUser = await AccountModel.findById(id)
+        let addCoins = await AccountModel.findByIdAndUpdate(id,{coins:findUser?.coins + dollars*10},{new:true})
+        return res.status(200).json({data:addCoins,msg:"Coins Buy Successfully"})
+    } 
+    catch (error) {
+        
+    }
+}
 
-module.exports = {followCreator,uploadPicture,createAccount, loginAccount, getAccountById,getAllAccount,switchProfileMode,createGoogleAccount,loginGoogleAccount}
+
+module.exports = {followCreator,uploadPicture,createAccount, loginAccount, getAccountById,getAllAccount,switchProfileMode,createGoogleAccount,loginGoogleAccount,buyCoins}
