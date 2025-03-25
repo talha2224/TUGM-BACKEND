@@ -11,7 +11,7 @@ const app = express();
 const port = process.env.PORT || 3002;
 const server = http.createServer(app);
 
-const io = require("socket.io")(server, {cors: { origin: "*", methods: ["GET", "POST"] }});
+const io = require("socket.io")(server, {transports: ['websocket'],cors: { origin: "*", methods: ["GET", "POST"] }});
 
 app.use(express.json());
 app.use(cors({ origin: "*" }));
@@ -27,8 +27,9 @@ io.on("connection", (socket) => {
     });
 
     socket.on("sendGift", async(data) => {
+        console.log(`sendGift ${data}`);
         let findUser = await AccountModel.findById(data?.userId)
-         await AccountModel.findByIdAndUpdate(data?.userId,{coins:findUser?.coins-data?.coins},{new:true})
+        await AccountModel.findByIdAndUpdate(data?.userId,{coins:findUser?.coins-data?.coins},{new:true})
         io.to(data.streamId).emit("receiveGift", data); 
     });
 
@@ -41,6 +42,7 @@ io.on("connection", (socket) => {
 
     socket.on("disconnect", () => {
         console.log("A user disconnected:", socket.id);
+        socket.removeAllListeners();
     });
 });
 
