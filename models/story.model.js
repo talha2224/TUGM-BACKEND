@@ -7,7 +7,7 @@ const storySchema = mongoose.Schema({
     assets:{type:Array,default:[]},
     isActive:{type:Boolean,default:true},
     createdAt: { type: Date, default: Date.now },
-    viewers:{type:Array,default:[]}
+    viewers: [{ type: mongoose.Schema.Types.ObjectId, ref: "Account" }]  
 })
 
 
