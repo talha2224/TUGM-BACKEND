@@ -4,7 +4,7 @@ const router = require("express").Router()
 
 router.post("/create",multipleupload.fields([{ name: "assets", maxCount: 3 }]),createStory)
 router.get("/all",getAllStory)
-router.put("/update/:id",updateViewers)
+router.put("/view/:id",updateViewers)
 
 
 module.exports = router

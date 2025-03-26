@@ -28,14 +28,15 @@ const updateViewers=async (req,res)=>{
     try {
         let {id} = req?.params
         let {uId} = req?.body
-        let isExits = await StoryModel.findById(id)
-        if(isExits){
-            let updatedViewers =[]
-            let isIncludes=isExits?.viewers?.includes(uId)
-            updatedViewers= isIncludes?[...isExits?.viewers,uId]:[...isExits?.viewers]
-            console.log(updatedViewers,'updatedViewers')
-            let update = await StoryModel.findByIdAndUpdate(id,{viewers:updatedViewers},{new:true})
-            return res.status(200).json({ data:update, msg: "Viewers Updated", status: 200 });
+        let story = await StoryModel.findById(id);
+        console.log(story,'story')
+        if(story){
+            if (!story.viewers.includes(uId)) {
+                await StoryModel.findByIdAndUpdate(id, { 
+                    $push: { viewers: uId } 
+                });
+            }
+            return res.status(200).json({ data:null, msg: "Viewers Updated", status: 200 });
         }
     } 
     catch (error) {
@@ -44,7 +45,7 @@ const updateViewers=async (req,res)=>{
 }
 const getAllStory = async (req, res) => {
     try {
-        let data = await StoryModel.find({isActive:true}).populate("userId");
+        let data = await StoryModel.find({isActive:true}).populate("userId").populate("viewers");
         return res.status(200).json({ data, msg: "All Story", status: 200 });
     } 
     catch (error) {
