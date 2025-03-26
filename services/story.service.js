@@ -24,7 +24,24 @@ const createStory = async (req, res) => {
     }
 };
 
-
+const updateViewers=async (req,res)=>{
+    try {
+        let {id} = req?.params
+        let {uId} = req?.body
+        let isExits = await StoryModel.findById(id)
+        if(isExits){
+            let updatedViewers =[]
+            let isIncludes=isExits?.viewers?.includes(uId)
+            updatedViewers= isIncludes?[...isExits?.viewers,uId]:[...isExits?.viewers]
+            console.log(updatedViewers,'updatedViewers')
+            let update = await StoryModel.findByIdAndUpdate(id,{viewers:updatedViewers},{new:true})
+            return res.status(200).json({ data:update, msg: "Viewers Updated", status: 200 });
+        }
+    } 
+    catch (error) {
+        console.log(error)
+    }
+}
 const getAllStory = async (req, res) => {
     try {
         let data = await StoryModel.find({isActive:true}).populate("userId");
@@ -39,4 +56,4 @@ const getAllStory = async (req, res) => {
 
 
 
-module.exports = { createStory, getAllStory }
+module.exports = { createStory, getAllStory,updateViewers }
