@@ -30,5 +30,23 @@ const getGift = async (req, res) => {
         return res.status(500).json({ msg: "Internal Server Error", status: 500 });
     }
 };
+const getGiftHost = async (req, res) => {
+    try {
+        let { userId, streamId } = req.params;
+        let gift = await GiftModel.findOne({streamId,viewers: { $ne: userId }}).populate("userId").sort({ createdAt: -1 });
+        console.log(gift,'gift')
 
-module.exports ={createGift,getGift}
+        if (!gift) {
+            return res.status(200).json({ msg: "No available gifts", status: 404 });
+        }
+        gift.viewers.push(userId);
+        await gift.save();
+        return res.status(200).json({ data: gift, msg: "Gift retrieved", status: 200 });
+    } 
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({ msg: "Internal Server Error", status: 500 });
+    }
+};
+
+module.exports ={createGift,getGift,getGiftHost}
