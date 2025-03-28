@@ -2,7 +2,8 @@ const mongoose = require("mongoose");
 
 const notificationSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "Account", required: true },
-    msg: { type: String, required: true },
+    invitedBy: { type: mongoose.Schema.Types.ObjectId, ref: "Account", required: true },
+    streamId: {type:String},
     createdAt: { type: Date, default: Date.now }
 });
 

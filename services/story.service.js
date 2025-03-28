@@ -12,9 +12,7 @@ const createStory = async (req, res) => {
             let recordingUrl = await uploadFile(element);
             assets.push(recordingUrl);
         }
-
-        console.log(assets, 'assets')
-
+        
         let data = await StoryModel.create({ assets, userId });
         return res.status(200).json({ data, msg: "Story Created", status: 200 });
     }

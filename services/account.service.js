@@ -163,5 +163,17 @@ const buyCoins = async (req,res) =>{
     }
 }
 
+const subscribeUser= async (req,res) =>{
+    try {
+        let { id } = req.params;
+        let data = await AccountModel.findByIdAndUpdate(id,{isSubscribed:true},{new:true})
+        console.log(data,'data',id)
+        return res.status(200).json({data,msg:"Subscribed Successfully"})
+    } 
+    catch (error) {
+        
+    }
+}
 
-module.exports = {followCreator,uploadPicture,createAccount, loginAccount, getAccountById,getAllAccount,switchProfileMode,createGoogleAccount,loginGoogleAccount,buyCoins}
+
+module.exports = {followCreator,uploadPicture,createAccount, loginAccount, getAccountById,getAllAccount,switchProfileMode,createGoogleAccount,loginGoogleAccount,buyCoins,subscribeUser}
