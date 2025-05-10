@@ -1,4 +1,4 @@
-const { generateZegoStream, uploadFile } = require("../utils/function");
+const { generateZegoStream, uploadFile, generateAgoraToken } = require("../utils/function");
 const LiveStream = require("../models/stream.model");
 
 const createStream = async (req, res) => {
@@ -7,7 +7,7 @@ const createStream = async (req, res) => {
         let image = req.file
         let url = await uploadFile(image);
         const { streamId, token } = await generateZegoStream(creatorId);
-        const newStream = new LiveStream({ startingBid, creatorId, streamId, token, coverImage: url,productId});
+        const newStream = new LiveStream({ startingBid, creatorId, streamId, token, coverImage: url, productId });
         await newStream.save();
         res.status(200).json({ data: newStream, msg: "Stream Started" });
     }
@@ -26,7 +26,7 @@ const getActive = async (req, res) => {
 };
 const getCreatorActiveStream = async (req, res) => {
     try {
-        const activeStreams = await LiveStream.findOne({ streamId:req?.params?.id}).populate("creatorId").populate("productId")
+        const activeStreams = await LiveStream.findOne({ streamId: req?.params?.id }).populate("creatorId").populate("productId")
         res.status(200).json({ data: activeStreams, msg: "" });
     }
     catch (error) {
@@ -55,4 +55,16 @@ const getSingle = async (req, res) => {
     }
 };
 
-module.exports = { createStream, getActive, getSingle, endStream,getCreatorActiveStream};
+const getToken = async (req, res) => {
+    try {
+        let id = req.params.id
+        let role = req.params.role
+        let token = await generateAgoraToken(id, role)
+        console.log(token,'token')
+        return res.status(200).json({ data: token })
+    }
+    catch (error) {
+        console.log(error)
+    }
+}
+module.exports = { createStream, getActive, getSingle, endStream, getCreatorActiveStream, getToken };

@@ -33,6 +33,7 @@ const getGift = async (req, res) => {
 const getGiftHost = async (req, res) => {
     try {
         let { userId, streamId } = req.params;
+        console.log(userId, streamId )
         let gift = await GiftModel.findOne({streamId,viewers: { $ne: userId }}).populate("userId").sort({ createdAt: -1 });
         console.log(gift,'gift')
 

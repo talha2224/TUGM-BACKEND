@@ -1,9 +1,9 @@
 const { storage } = require("../config/firebase.config");
 const { getDownloadURL, ref, uploadBytes } = require("@firebase/storage");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { RtcTokenBuilder, RtcRole } = require("agora-access-token");
 const genAI = new GoogleGenerativeAI('AIzaSyAIN_DwYdnX0wwSx_3sFejTq25CgNX9S3o');
 const { AssemblyAI } = require('assemblyai');
-const axios = require("axios")
 const jwt = require("jsonwebtoken");
 
 require("dotenv").config()
@@ -60,7 +60,7 @@ module.exports = {
     },
     generateZegoStream: async (userId) => {
         try {
-            const payload = {app_id: ZEGO_APP_ID,user_id: userId,nonce: Math.floor(Math.random() * 1000000),exp: Math.floor(Date.now() / 1000) + 3600,};
+            const payload = { app_id: ZEGO_APP_ID, user_id: userId, nonce: Math.floor(Math.random() * 1000000), exp: Math.floor(Date.now() / 1000) + 3600, };
             const token = jwt.sign(payload, ZEGO_SERVER_SECRET, { algorithm: "HS256" });
             return {
                 streamId: `stream_${userId}_${Date.now()}`,
@@ -70,6 +70,26 @@ module.exports = {
             console.error("Error generating Zego token:", error);
             throw new Error("Failed to generate Zego token");
         }
+    },
+
+    generateAgoraToken: async (channelName, role = 'subscriber') => {
+        console.log(channelName, role,'channelName, role')
+        const uid = 0;
+        const agoraRole = role === 'host' ? RtcRole.PUBLISHER : RtcRole.SUBSCRIBER;
+        const expirationTimeInSeconds = 3600;
+        const currentTimestamp = Math.floor(Date.now() / 1000);
+        const privilegeExpiredTs = currentTimestamp + expirationTimeInSeconds;
+
+        const token = RtcTokenBuilder.buildTokenWithUid(
+            APP_ID ="7235a8177bd74d14a5d615df38e6fcf5",
+            APP_CERTIFICATE ="860c7ef91af84eb4be693333682bf466",
+            channelName,
+            uid,
+            agoraRole,
+            privilegeExpiredTs
+        );
+
+        return token;
     },
 
 }
