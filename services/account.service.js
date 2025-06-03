@@ -175,5 +175,23 @@ const subscribeUser= async (req,res) =>{
     }
 }
 
+const toggleBlockAccount = async (req, res) => {
+    try {
+        let { id } = req.params;
+        let findUser = await AccountModel.findById(id);
+        if (!findUser) return res.status(404).json({ msg: "User not found" });
 
-module.exports = {followCreator,uploadPicture,createAccount, loginAccount, getAccountById,getAllAccount,switchProfileMode,createGoogleAccount,loginGoogleAccount,buyCoins,subscribeUser}
+        const updatedUser = await AccountModel.findByIdAndUpdate(
+            id,
+            { isBlocked: !findUser.isBlocked },
+            { new: true }
+        );
+        return res.status(200).json({ data: updatedUser, msg: "Block status updated" });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ msg: "Server error" });
+    }
+};
+
+
+module.exports = {toggleBlockAccount,followCreator,uploadPicture,createAccount, loginAccount, getAccountById,getAllAccount,switchProfileMode,createGoogleAccount,loginGoogleAccount,buyCoins,subscribeUser}

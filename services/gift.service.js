@@ -30,6 +30,16 @@ const getGift = async (req, res) => {
         return res.status(500).json({ msg: "Internal Server Error", status: 500 });
     }
 };
+const getAll = async (req, res) => {
+    try {
+        let gift = await GiftModel.find({}).populate("userId").sort({ createdAt: -1 });
+        return res.status(200).json({ data: gift, msg: "Gift retrieved", status: 200 });
+    } 
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({ msg: "Internal Server Error", status: 500 });
+    }
+};
 const getGiftHost = async (req, res) => {
     try {
         let { userId, streamId } = req.params;
@@ -50,4 +60,4 @@ const getGiftHost = async (req, res) => {
     }
 };
 
-module.exports ={createGift,getGift,getGiftHost}
+module.exports ={createGift,getGift,getGiftHost,getAll}

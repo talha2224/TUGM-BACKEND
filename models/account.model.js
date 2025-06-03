@@ -12,7 +12,9 @@ const AccountSchema = mongoose.Schema({
     followers:{type:Number,default:0},
     followedBy:{type:Array,default:[]},
     coins:{type:Number,default:0},
-    isSubscribed:{type:Boolean,default:false}
+    role:{type:String,default:"user"},
+    isSubscribed:{type:Boolean,default:false},
+    isBlocked:{type:Boolean,default:false}
 })
 
 

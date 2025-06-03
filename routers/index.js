@@ -10,12 +10,9 @@ combineRouter.use("/stream",require("./stream.router"))
 combineRouter.use("/bidding",require("./bidding.router"))
 combineRouter.use("/story",require("./story.router"))
 combineRouter.use("/gift",require("./gift.router"))
+combineRouter.use("/gifts",require("./gifts.router"))
 combineRouter.use("/notification",require("./notification.router"))
-
-// combineRouter.use("/sound",require("./sound.router"))
-// combineRouter.use("/beat",require("./beat.router"))
-// combineRouter.use("/ticket",require("./ticket.router"))
-// combineRouter.use("/performance",require("./performance.router"))
+combineRouter.use("/price",require("./price.router"))
 
 
 

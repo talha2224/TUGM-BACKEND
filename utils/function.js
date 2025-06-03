@@ -73,7 +73,6 @@ module.exports = {
     },
 
     generateAgoraToken: async (channelName, role = 'subscriber') => {
-        console.log(channelName, role,'channelName, role')
         const uid = 0;
         const agoraRole = role === 'host' ? RtcRole.PUBLISHER : RtcRole.SUBSCRIBER;
         const expirationTimeInSeconds = 3600;
