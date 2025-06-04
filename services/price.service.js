@@ -23,7 +23,7 @@ const createUpdatePrice = async (req, res) => {
 
 const getPrice = async (req, res) => {
     try {
-        const price = await PriceModel.findOne(); // return single document
+        const price = await PriceModel.findOne();
         return res.status(200).json({ data: price, msg: "", status: 200 });
     } catch (error) {
         console.log(error);

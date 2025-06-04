@@ -1,6 +1,8 @@
 const { AccountModel } = require("../models/account.model");
 const bcrypt = require("bcryptjs")
-const {uploadFile } = require("../utils/function");
+const { uploadFile } = require("../utils/function");
+const { TransactionHistoryModel } = require("../models/transactionHistory.model");
+const { PriceModel } = require("../models/pricing.model");
 
 
 
@@ -10,15 +12,15 @@ const {uploadFile } = require("../utils/function");
 
 const createAccount = async (req, res) => {
     try {
-        let {username, email, password } = req.body
-        console.log(email,'email')
+        let { username, email, password } = req.body
+        console.log(email, 'email')
         let findUser = await AccountModel.findOne({ email })
         if (findUser) {
             return res.status(400).json({ data: null, msg: "Account already exits", code: 200 })
         }
         else {
             let hash = await bcrypt.hash(password, 10)
-            let result = await AccountModel.create({username,email,password:hash,registrationType:"normal" })
+            let result = await AccountModel.create({ username, email, password: hash, registrationType: "normal" })
             return res.status(200).json({ data: result, msg: "Account Created Please Complete Your Profile", status: 200 })
 
         }
@@ -29,13 +31,13 @@ const createAccount = async (req, res) => {
 }
 const createGoogleAccount = async (req, res) => {
     try {
-        let { email,username } = req.body
-        let findUser = await AccountModel.findOne({ email})
+        let { email, username } = req.body
+        let findUser = await AccountModel.findOne({ email })
         if (findUser) {
             return res.status(400).json({ data: null, msg: "Account already exits", code: 400 })
         }
         else {
-            let result = await AccountModel.create({username,email,registrationType:"google"})
+            let result = await AccountModel.create({ username, email, registrationType: "google" })
             return res.status(200).json({ data: result, msg: "Account Created Please Complete Your Profile", status: 200 })
 
         }
@@ -47,7 +49,7 @@ const createGoogleAccount = async (req, res) => {
 const loginAccount = async (req, res) => {
     try {
         let { email, password, } = req.body
-        let findUser = await AccountModel.findOne({ email,registrationType:"normal" })
+        let findUser = await AccountModel.findOne({ email, registrationType: "normal" })
         if (!findUser) {
             return res.status(400).json({ data: null, msg: "Account not exits", code: 400 })
         }
@@ -68,7 +70,7 @@ const loginAccount = async (req, res) => {
 const loginGoogleAccount = async (req, res) => {
     try {
         let { email } = req.body
-        let findUser = await AccountModel.findOne({ email,registrationType:"google" })
+        let findUser = await AccountModel.findOne({ email, registrationType: "google" })
         if (!findUser) {
             return res.status(400).json({ data: null, msg: "Account not exits", code: 400 })
         }
@@ -83,14 +85,14 @@ const loginGoogleAccount = async (req, res) => {
 
 const switchProfileMode = async (req, res) => {
     try {
-        let {id} = req.params
-        let {sellerMode} = req.body
+        let { id } = req.params
+        let { sellerMode } = req.body
         let findUser = await AccountModel.findById(id)
         if (!findUser) {
             return res.status(400).json({ data: null, msg: "Account not exits invalid account id pass", code: 400 })
         }
         else {
-            let result = await AccountModel.findByIdAndUpdate(id,{sellerMode:sellerMode},{new:true})
+            let result = await AccountModel.findByIdAndUpdate(id, { sellerMode: sellerMode }, { new: true })
             return res.status(200).json({ data: result, msg: "Profile Info Added", status: 200 })
         }
     }
@@ -120,14 +122,27 @@ const getAllAccount = async (req, res) => {
     }
 }
 
-const uploadPicture = async (req,res)=>{
+const uploadPicture = async (req, res) => {
     try {
         let { id } = req.params;
         let image = req.file
         let url = await uploadFile(image);
-        let updateProfile = await AccountModel.findByIdAndUpdate(id,{profile:url},{new:true})
-        return res.status(200).json({data:updateProfile,msg:"Profile Picture Updated"})
-    } 
+        let updateProfile = await AccountModel.findByIdAndUpdate(id, { profile: url }, { new: true })
+        return res.status(200).json({ data: updateProfile, msg: "Profile Picture Updated" })
+    }
+    catch (error) {
+        console.log(error)
+    }
+}
+
+const assignBadge = async (req, res) => {
+    try {
+        let { id } = req.params;
+        let image = req.file
+        let url = await uploadFile(image);
+        let updateBadge = await AccountModel.findByIdAndUpdate(id, { badge: url }, { new: true })
+        return res.status(200).json({ data: updateBadge, msg: "Badge Updated" })
+    }
     catch (error) {
         console.log(error)
     }
@@ -140,38 +155,40 @@ const followCreator = async (req, res) => {
         if (!findCreator) {
             return res.status(404).json({ msg: "Creator not found" });
         }
-        
-        let updateProfile = await AccountModel.findByIdAndUpdate(cid,{ $addToSet: { followedBy: uid },$inc: { followers: 1 }},{ new: true });
+
+        let updateProfile = await AccountModel.findByIdAndUpdate(cid, { $addToSet: { followedBy: uid }, $inc: { followers: 1 } }, { new: true });
         return res.status(200).json({ data: updateProfile, msg: "Follow Successful" });
-    } 
+    }
     catch (error) {
         console.log(error);
         return res.status(500).json({ msg: "Internal Server Error" });
     }
 };
 
-const buyCoins = async (req,res) =>{
+const buyCoins = async (req, res) => {
     try {
         let { id } = req.params;
-        let {dollars} = req.body
+        let { dollars } = req.body
         let findUser = await AccountModel.findById(id)
-        let addCoins = await AccountModel.findByIdAndUpdate(id,{coins:findUser?.coins + dollars*10},{new:true})
-        return res.status(200).json({data:addCoins,msg:"Coins Buy Successfully"})
-    } 
+        let addCoins = await AccountModel.findByIdAndUpdate(id, { coins: findUser?.coins + dollars * 10 }, { new: true })
+        await TransactionHistoryModel.create({ userId: id, amount: dollars })
+        return res.status(200).json({ data: addCoins, msg: "Coins Buy Successfully" })
+    }
     catch (error) {
-        
+
     }
 }
 
-const subscribeUser= async (req,res) =>{
+const subscribeUser = async (req, res) => {
     try {
         let { id } = req.params;
-        let data = await AccountModel.findByIdAndUpdate(id,{isSubscribed:true},{new:true})
-        console.log(data,'data',id)
-        return res.status(200).json({data,msg:"Subscribed Successfully"})
-    } 
+        const price = await PriceModel.findOne();
+        let data = await AccountModel.findByIdAndUpdate(id, { isSubscribed: true }, { new: true })
+        await TransactionHistoryModel.create({ userId: id, amount: price.subscriptionPrice, type: "Subscription" })
+        return res.status(200).json({ data, msg: "Subscribed Successfully" })
+    }
     catch (error) {
-        
+
     }
 }
 
@@ -194,4 +211,4 @@ const toggleBlockAccount = async (req, res) => {
 };
 
 
-module.exports = {toggleBlockAccount,followCreator,uploadPicture,createAccount, loginAccount, getAccountById,getAllAccount,switchProfileMode,createGoogleAccount,loginGoogleAccount,buyCoins,subscribeUser}
+module.exports = { assignBadge, toggleBlockAccount, followCreator, uploadPicture, createAccount, loginAccount, getAccountById, getAllAccount, switchProfileMode, createGoogleAccount, loginGoogleAccount, buyCoins, subscribeUser }

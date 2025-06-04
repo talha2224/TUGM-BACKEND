@@ -13,6 +13,9 @@ combineRouter.use("/gift",require("./gift.router"))
 combineRouter.use("/gifts",require("./gifts.router"))
 combineRouter.use("/notification",require("./notification.router"))
 combineRouter.use("/price",require("./price.router"))
+combineRouter.use("/ticket",require("./ticket.router"))
+combineRouter.use("/term",require("./terms.router"))
+combineRouter.use("/transaction/history",require("./transactionHistory.router"))
 
 
 
