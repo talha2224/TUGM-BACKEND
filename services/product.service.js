@@ -3,21 +3,30 @@ const { uploadFile } = require("../utils/function");
 
 const createProduct = async (req, res) => {
     try {
-        let { userId, title, description, price, stock,categoryId } = req.body
-        let image = req.file
-        let url = await uploadFile(image);
-        const Product = new ProductModel({ image: url, userId, title, description, price, stock ,categoryId});
+        let { size, userId, title, description, listing_type, shipping_type, categories, tags, colors, weight, dimensions, quantity, price, stock } = req.body;
+
+        let files = req.files;
+        let urls = [];
+
+        if (files && files.length > 0) {
+            for (let index = 0; index < files.length; index++) {
+                const element = await uploadFile(files[index]);
+                urls.push(element);
+            }
+        }
+        const Product = new ProductModel({ size, images: urls, userId, title, description, listing_type, shipping_type, categories: JSON.parse(categories), tags: JSON.parse(tags), colors: JSON.parse(colors), weight, dimensions, quantity, price, stock });
         await Product.save();
-        return res.status(200).json({ data: Product, msg: null, status: 200 });
-    }
-    catch (error) {
-        console.error("Error creating Post:", error);
-        return { success: false, msg: "Failed to create Post" };
+        return res.status(200).json({ data: Product, msg: "Product created successfully", status: 200 });
+    } catch (error) {
+        console.error("Error creating Product:", error);
+        return res.status(500).json({ success: false, msg: "Failed to create product" });
     }
 };
+
+
 const getAllProduct = async (req, res) => {
     try {
-        const Product = await ProductModel.find({}).populate("categoryId");
+        const Product = await ProductModel.find({})
         return res.status(200).json({ data: Product, msg: null, status: 200 });
     } catch (error) {
         console.error("Error fetching Post:", error);
@@ -26,7 +35,16 @@ const getAllProduct = async (req, res) => {
 };
 const getAllProductSeller = async (req, res) => {
     try {
-        const Product = await ProductModel.find({ userId: req?.params?.id }).populate("categoryId");
+        const Product = await ProductModel.find({ userId: req?.params?.id })
+        return res.status(200).json({ data: Product, msg: null, status: 200 });
+    } catch (error) {
+        console.error("Error fetching Post:", error);
+        return { success: false, msg: "Failed to fetch Post" };
+    }
+};
+const getSingleProduct = async (req, res) => {
+    try {
+        const Product = await ProductModel.findById(req?.params?.id)
         return res.status(200).json({ data: Product, msg: null, status: 200 });
     } catch (error) {
         console.error("Error fetching Post:", error);
@@ -68,4 +86,4 @@ const uploadPicture = async (req, res) => {
 }
 
 
-module.exports = { getAllProduct, createProduct, deleteProduct, updateProduct, uploadPicture, getAllProductSeller };
+module.exports = { getAllProduct, createProduct, deleteProduct, updateProduct, uploadPicture, getAllProductSeller, getSingleProduct };
