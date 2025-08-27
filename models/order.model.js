@@ -6,11 +6,10 @@ const orderSchema = new mongoose.Schema({
     productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
     quantity: { type: Number, required: true },
     total: { type: Number, required: true },
-    city: { type: String,required: true},
-    country: { type: String,required: true},
-    address: { type: String,required: true},
-    phone: { type: Number, required: true },
+    customer_address: { type: String,required: true},
+    pickup_station: { type: String,required: true},
     delivered:{type: Boolean,default:false},
+    status:{type: String,default:"ongoing",enum:["ongoing","delivered","cancelled"]},
     createdAt: { type: Date, default: Date.now }
 });
 
