@@ -5,6 +5,7 @@ const notificationSchema = new mongoose.Schema({
     invitedBy: { type: mongoose.Schema.Types.ObjectId, ref: "Account", default: null },
     streamId: {type:String, default: null},
     description: {type:String, default: null},
+    type:{type:String,default:"stream"},
     createdAt: { type: Date, default: Date.now }
 });
 

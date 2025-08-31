@@ -60,7 +60,6 @@ const getToken = async (req, res) => {
         let id = req.params.id
         let role = req.params.role
         let token = await generateAgoraToken(id, role)
-        console.log(token,'token')
         return res.status(200).json({ data: token })
     }
     catch (error) {
