@@ -6,21 +6,21 @@ const setupSocket = (io) => {
     io.on("connection", (socket) => {
         console.log("User connected:", socket.id);
         socket.on("join", (data) => {
-            let roomId;
+            let streamId;
             try {
-                const parsedData = typeof data === "string" && data.includes("{")? JSON.parse(data): { roomId: data };
-                roomId = parsedData.roomId;
+                const parsedData = typeof data === "string" && data.includes("{") ? JSON.parse(data) : { streamId: data };
+                streamId = parsedData.streamId;
             } catch (e) {
                 console.error("Failed to parse join data:", e);
                 return;
             }
 
-            if (roomId) {
-                socket.join(roomId);
-                console.log(`User ${roomId} joined their room`);
+            if (streamId) {
+                socket.join(streamId.streamId);
+                console.log(`User ${streamId.streamId} joined their room`);
             } else {
                 console.log(
-                    "Received 'join' event but roomId was undefined or missing."
+                    "Received 'join' event but streamId was undefined or missing."
                 );
             }
         });
@@ -30,9 +30,9 @@ const setupSocket = (io) => {
     });
 };
 
-const emitToUser = (roomId, event, data) => {
+const emitToUser = (streamId, event, data) => {
     if (ioInstance) {
-        ioInstance.to(roomId).emit(event, data);
+        ioInstance.to(streamId).emit(event, data);
     }
 };
 
