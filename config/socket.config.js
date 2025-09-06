@@ -24,6 +24,11 @@ const setupSocket = (io) => {
                 );
             }
         });
+        socket.on("sendPerk", (data) => {
+            console.log(data.streamId, 'data of sendPerk')
+            io.to(data.streamId).emit("newPerk", data);
+        });
+        socket.on("sendMessage", (payload) => { console.log("sendMessage received:", payload); });
         socket.on("disconnect", () => {
             console.log("User disconnected:", socket.id);
         });

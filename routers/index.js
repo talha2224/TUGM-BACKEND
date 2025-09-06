@@ -17,6 +17,7 @@ combineRouter.use("/ticket",require("./ticket.router"))
 combineRouter.use("/term",require("./terms.router"))
 combineRouter.use("/transaction/history",require("./transactionHistory.router"))
 combineRouter.use("/battle",require("./battle.router"))
+combineRouter.use("/chat",require("./chat.router"))
 
 
 
