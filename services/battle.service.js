@@ -6,11 +6,11 @@ const { emitToUser } = require("../config/socket.config");
 
 const createBattle = async (req, res) => {
     try {
-        const { name, creatorId, opponentId } = req.body;
+        const { name, creatorId, opponentId, productId } = req.body;
         let image = req.file
         let url = await uploadFile(image);
         const { streamId, token } = await generateZegoStream(creatorId);
-        const newStream = new LiveBattle({ name, creatorId, streamId, token, coverImage: url, opponentId });
+        const newStream = new LiveBattle({ name, creatorId, streamId, token, coverImage: url, opponentId, productId });
         await newStream.save();
         if (newStream?._id) {
             await NotificationModel.create({ streamId, invitedBy: creatorId, userId: opponentId, type: "battle" })
@@ -23,7 +23,7 @@ const createBattle = async (req, res) => {
 };
 const getActive = async (req, res) => {
     try {
-        const activeStreams = await LiveBattle.find({ status: "active" }).populate("creatorId").populate("opponentId")
+        const activeStreams = await LiveBattle.find({ status: "active" }).populate("creatorId").populate("opponentId").populate("productId")
         res.status(200).json({ data: activeStreams, msg: "" });
     }
     catch (error) {
@@ -32,10 +32,13 @@ const getActive = async (req, res) => {
 };
 const getCreatorActiveBattle = async (req, res) => {
     try {
-        const activeStreams = await LiveBattle.findOne({ streamId: req?.params?.id }).populate("creatorId").populate("opponentId")
-        res.status(200).json({ data: activeStreams, msg: "" });
-    }
-    catch (error) {
+        const activeStream = await LiveBattle.findOne({ streamId: req?.params?.id })
+            .populate("creatorId")
+            .populate("opponentId")
+            .populate("productId"); // ✅ added populate
+
+        res.status(200).json({ data: activeStream, msg: "" });
+    } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
@@ -51,12 +54,15 @@ const endBattle = async (req, res) => {
 };
 const getSingle = async (req, res) => {
     try {
-        const stream = await LiveBattle.findById(req.params.id);
+        const stream = await LiveBattle.findById(req.params.id)
+            .populate("creatorId")
+            .populate("opponentId")
+            .populate("productId");
+
         return res.status(200).json({ data: stream, msg: "", status: 200 });
-    }
-    catch (error) {
-        console.error("Error deleting note:", error);
-        return { success: false, msg: "Failed to delete note" };
+    } catch (error) {
+        console.error("Error fetching battle:", error);
+        res.status(500).json({ error: "Failed to fetch battle" });
     }
 };
 const increaseVote = async (req, res) => {
@@ -73,7 +79,7 @@ const increaseVote = async (req, res) => {
             : { $inc: { opponentVotes: 1 } };
 
         const updatedBattle = await LiveBattle.findOneAndUpdate(
-            {streamId:battleId},
+            { streamId: battleId },
             updateField,
             { new: true }
         ).populate("creatorId opponentId");
