@@ -36,9 +36,9 @@ const setupSocket = (io) => {
 };
 
 const emitToUser = (streamId, event, data) => {
-    if (ioInstance) {
-        ioInstance.to(streamId).emit(event, data);
-    }
+    console.log(`🚀 Emitting event "${event}" to room: ${streamId}`);
+    if (ioInstance) ioInstance.to(streamId).emit(event, data);
 };
+
 
 module.exports = { setupSocket, emitToUser };

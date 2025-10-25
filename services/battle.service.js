@@ -73,22 +73,27 @@ const increaseVote = async (req, res) => {
             return res.status(400).json({ error: "Invalid vote type" });
         }
 
-        // 1. Update vote count
-        const updateField = type === "creator"
-            ? { $inc: { creatorVotes: 1 } }
-            : { $inc: { opponentVotes: 1 } };
+        // 1️⃣ Increment correct vote field
+        const updateField =
+            type === "creator"
+                ? { $inc: { creatorVotes: 1 } }
+                : { $inc: { opponentVotes: 1 } };
 
+        // 2️⃣ Update and populate all relevant fields
         const updatedBattle = await LiveBattle.findOneAndUpdate(
             { streamId: battleId },
             updateField,
             { new: true }
-        ).populate("creatorId opponentId");
+        )
+            .populate("creatorId")
+            .populate("opponentId")
+            .populate("productId"); // ✅ populate productId here
 
         if (!updatedBattle) {
             return res.status(404).json({ error: "Battle not found" });
         }
 
-        // 2. Decide winner
+        // 3️⃣ Determine winner dynamically
         let winner = null;
         if (updatedBattle.creatorVotes > updatedBattle.opponentVotes) {
             winner = updatedBattle.creatorId._id;
@@ -100,13 +105,20 @@ const increaseVote = async (req, res) => {
             updatedBattle.winnerId = winner;
             await updatedBattle.save();
         }
+
+        // 4️⃣ Emit to room so all clients get updated data
         emitToUser(battleId.toString(), "voteUpdate", updatedBattle);
 
-        res.status(200).json({ data: updatedBattle, msg: "Vote added successfully" });
+        res.status(200).json({
+            data: updatedBattle,
+            msg: "Vote added successfully"
+        });
     } catch (error) {
+        console.error("Error increasing vote:", error);
         res.status(500).json({ error: error.message });
     }
 };
+
 
 const createMessage = async (req, res) => {
     try {
