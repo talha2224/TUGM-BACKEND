@@ -1,5 +1,6 @@
 const { generateZegoStream, uploadFile, generateAgoraToken } = require("../utils/function");
 const LiveStream = require("../models/stream.model");
+const BattleMessage = require("../models/battleMessage.model");
 
 const createStream = async (req, res) => {
     try {
@@ -66,4 +67,31 @@ const getToken = async (req, res) => {
         console.log(error)
     }
 }
-module.exports = { createStream, getActive, getSingle, endStream, getCreatorActiveStream, getToken };
+
+const createMessage = async (req, res) => {
+    try {
+        const { streamId, userId, message } = req.body;
+        if (!streamId || !userId || !message) {
+            return res.status(400).json({ error: "streamId, userId and message are required" });
+        }
+        const newMessage = new BattleMessage({ streamId, userId, message });
+        await newMessage.save();
+        const populatedMessage = await BattleMessage.findById(newMessage._id).populate("userId");
+        emitToUser(streamId.toString(), "newMessage", populatedMessage);
+
+        res.status(200).json({ data: populatedMessage, msg: "Message sent" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+const getMessages = async (req, res) => {
+    try {
+        const { streamId } = req.params;
+        const messages = await BattleMessage.find({ streamId }).populate("userId").sort({ createdAt: 1 });
+        res.status(200).json({ data: messages, msg: "Messages fetched" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+module.exports = { createStream, getActive, getSingle, endStream, getCreatorActiveStream, getToken, createMessage, getMessages };

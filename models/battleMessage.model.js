@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
 
 const battleMessageSchema = new mongoose.Schema({
-    battleId: { type: String, required: true },
+    battleId: { type: String, default: null },
+    streamId: { type: String, default: null },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "Account", required: true },
     message: { type: String, required: true },
 }, { timestamps: true });
