@@ -1,6 +1,7 @@
 const { generateZegoStream, uploadFile, generateAgoraToken } = require("../utils/function");
 const LiveStream = require("../models/stream.model");
 const BattleMessage = require("../models/battleMessage.model");
+const { emitToUser } = require("../config/socket.config");
 
 const createStream = async (req, res) => {
     try {
@@ -78,7 +79,6 @@ const createMessage = async (req, res) => {
         await newMessage.save();
         const populatedMessage = await BattleMessage.findById(newMessage._id).populate("userId");
         emitToUser(streamId.toString(), "newMessage", populatedMessage);
-
         res.status(200).json({ data: populatedMessage, msg: "Message sent" });
     } catch (error) {
         res.status(500).json({ error: error.message });
