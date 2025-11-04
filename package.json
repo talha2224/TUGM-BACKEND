@@ -18,7 +18,7 @@
     "@google/generative-ai": "^0.21.0",
     "agora-access-token": "^2.0.4",
     "assemblyai": "^4.9.0",
-    "axios": "^1.7.9",
+    "axios": "^1.13.1",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
